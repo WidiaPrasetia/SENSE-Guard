@@ -48,7 +48,7 @@ TBMessage msg;
 // Deklarasi Prototipe Fungsi
 void setLEDColor(int red, int green, int blue);
 
-void displayTimeOnOLED(String currentTime, String ipAddress)
+void displayTimeOnOLED(String currentTime, String ipAddress, int strength)
 {
   display.clearDisplay();              // Bersihkan layar
   display.setTextSize(0.5);            // Set ukuran font
@@ -60,6 +60,11 @@ void displayTimeOnOLED(String currentTime, String ipAddress)
   display.setTextSize(2);
   display.setCursor(10, 20);    // Set posisi kursor (X, Y)
   display.println(currentTime); // Tampilkan waktu saat ini
+
+  display.setTextSize(0.5);
+  display.setCursor(0, 10);
+  display.print("Signal: ");
+  display.println(strength);
 
   display.setTextSize(2);
   display.setCursor(15, 50);
@@ -219,6 +224,11 @@ void setup()
   timeClient.update();
   Serial.print("Alamat IP: ");
   Serial.println(ipAddress);
+
+  int rssi = WiFi.RSSI();
+  int strength = map(rssi, -100, -50, 0, 100);
+  Serial.print("Signal: ");
+  Serial.println(strength);
 }
 
 void loop()
@@ -237,9 +247,11 @@ void loop()
     String formattedTime = timeClient.getFormattedTime();
     // Ambil IP address dari WiFi
     String ipAddress = WiFi.localIP().toString();
+    int rssi = WiFi.RSSI();
+    int strength = map(rssi, -100, -50, 0, 100);
 
     // Tampilkan waktu di OLED
-    displayTimeOnOLED(formattedTime, ipAddress);
+    displayTimeOnOLED(formattedTime, ipAddress, strength);
   }
   // Cek status koneksi WiFi secara terus-menerus
   if (WiFi.status() != WL_CONNECTED)
